@@ -1,0 +1,40 @@
+def row_counting(con, array=None, user_name=None):
+    """Function returns a list of tuples of row count of all tables in environment or specified array of table names
+       It prints out table names as it progresses
+
+    Warning: This function can take a long time to execute if there are a lot of tables
+
+
+            con: Connection to Oracle environment
+            user_name: Defaults to None. If specified, it returns the database names of a specific user
+            array: Defaults to None. An array of tables to perform row counting function on"""
+
+    cur = con.cursor()
+
+    if array is not None:
+        table_list = [*array]
+    else:
+        if user_name is None:
+            cur.execute("SELECT table_name FROM all_tables")
+        else:
+            cur.execute(f"SELECT table_name FROM all_tables WHERE user={user_name}")
+
+            table_list = []
+            for row in cur:
+                name = row[0]
+                table_list.append(name)
+
+    row_count = []
+
+    for table in table_list:
+        try:
+            sql = "SELECT COUNT(*) FROM " + table
+            for num in cur.execute(sql).fetchone():
+                row_count.append(num)
+                print(table)
+                pass
+        except:
+            row_count.append('Unknown')
+            continue
+
+    return zip(table_list, row_count)
