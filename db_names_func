@@ -1,0 +1,20 @@
+def db_names(con, user_name=None):
+    """Function returns a list of database names from the environment
+
+            con: Connection to Oracle environment
+            user_name: Defaults to None. If specified, it returns the database names of a specific user"""
+
+    cur = con.cursor()
+
+    if user_name is None:
+        cur.execute("SELECT DISTINCT owner FROM all_tables")
+    else:
+        cur.execute(f"SELECT DISTINCT owner FROM all_tables WHERE user={user_name}")
+
+    db_list = []
+
+    for row in cur:
+        name = row[0]
+        db_list.append(name)
+
+    return db_list
